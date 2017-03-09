@@ -3,7 +3,7 @@
 set_time_limit(0);
 
 // Edit these settings
-$chan = "#virtuvia";
+$chan = "";
 $server = "127.0.0.1";
 $port = 6667;
 $nick = "Stephen_Facts";
