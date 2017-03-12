@@ -8,6 +8,7 @@ $chan = "";
 $server = "127.0.0.1";
 $port = 6667;
 $nick = "Stephen_Facts";
+$password = "";
 
 $socket = fsockopen("$server", $port);
 fputs($socket,"USER $nick $nick $nick $nick :$nick\n");
