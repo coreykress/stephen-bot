@@ -1,6 +1,6 @@
 <?php
 
-namespace Bot;
+namespace ApiPlugins;
 
 use GuzzleHttp\Client;
 
@@ -79,19 +79,19 @@ class ChuckNorrisFactGuzzler {
     public function getRandomFact()
     {
         $client = $this->client;
-        $response = $client->request('GET', '/random');
+        $response = $client->request('GET', 'random');
 
-        $responseArray = json_decode($response);
-        if (!isset($responseArray['value'])) {
+        $responseBody = json_decode($response->getBody());
+        if (!isset($responseBody->value)) {
             return 'Error getting fact';
         }
 
-        return $this->updateNameInFact($responseArray['value']);
+        return $this->updateNameInFact($responseBody->value);
     }
 
     protected function updateNameInFact($fact)
     {
-        $pattern = '/Chuck Norris/gi';
+        $pattern = '/Chuck Norris/i';
 
         return preg_replace($pattern, $this->getName(),  $fact);
     }

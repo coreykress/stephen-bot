@@ -4,8 +4,9 @@ set_time_limit(0);
 require __DIR__ . '/vendor/autoload.php';
 require_once 'config.php';
 
+use ApiPlugins\ChuckNorrisFactGuzzler;
 use Phergie\Irc\Parser;
-//use Bot\ChuckNorrisFactGuzzler;
+require 'src/plugins/chuckNorrisFactGuzzler.php';
 
 $socket = fsockopen($serverName, $port);
 if (!$socket) {
@@ -13,14 +14,12 @@ if (!$socket) {
     exit(1);
 }
 fputs($socket,"NICK $nick\n");
-// username, hostname, servername, realname
 fputs($socket,"USER $nick $serverName $realName");
-
 fputs($socket,"JOIN ".$chan."\n");
 
-$baseURI = 'https://api.chucknorris.io/jokes';
+$baseURI = "https://api.chucknorris.io/jokes/";
 $name = 'Stephen';
-//$factGuzzler = new ChuckNorrisFactGuzzler($baseURI, $name);
+$factGuzzler = new ChuckNorrisFactGuzzler($baseURI, $name);
 
 $parser = new Parser();
 $alreadyJoined = false;
@@ -46,10 +45,18 @@ while(1) {
             $alreadyJoined = true;
         } else {
             var_dump($message);
-            $ex = explode(' ', $data);
-            if($ex[0] == "PING"){
-                var_dump($ex[1]);
-                fputs($socket, "PONG ".$ex[1]."\n");
+            if($message['command'] == "PING"){
+                sendData("PONG", $message['params']['all'], $socket);
+            }
+            else if ($message['command'] == "PRIVMSG") {
+                $text = $message['params']['text'];
+                if (preg_match('/'.$nick.'\:(?P<action>\w+)/', $text, $matches)) {
+                    $action = $matches['action'];
+                    if ($action == 'random') {
+                        $fact = $factGuzzler->getRandomFact();
+                        sendData('PRIVMSG', $fact, $socket);
+                    }
+                }
             }
         }
     }
