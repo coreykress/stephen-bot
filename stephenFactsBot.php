@@ -4,15 +4,21 @@ set_time_limit(0);
 use Bot\ChuckNorrisFactGuzzler;
 
 // Edit these settings
-$chan = "";
-$server = "127.0.0.1";
-$port = 6667;
-$nick = "Stephen_Facts";
-$password = "";
+include ('config.php');
 
-$socket = fsockopen("$server", $port);
-fputs($socket,"USER $nick $nick $nick $nick :$nick\n");
+$socket = fsockopen($serverName, $port);
+if (!$socket) {
+    echo 'socket failed to open';
+    exit(1);
+}
 fputs($socket,"NICK $nick\n");
+// username, hostname, servername, realname
+fputs($socket,"USER $nick $serverName $realName");
+
+
+
+
+
 fputs($socket,"JOIN ".$chan."\n");
 
 $baseURI = 'https://api.chucknorris.io/jokes';
@@ -51,4 +57,3 @@ while(1) {
         }
     }
 }
-?>
