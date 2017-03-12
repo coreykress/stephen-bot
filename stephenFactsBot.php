@@ -1,10 +1,11 @@
 <?php
 set_time_limit(0);
 
-//use Bot\ChuckNorrisFactGuzzler;
+require __DIR__ . '/vendor/autoload.php';
+require_once 'config.php';
 
-// Edit these settings
-include ('config.php');
+use Phergie\Irc\Parser;
+//use Bot\ChuckNorrisFactGuzzler;
 
 $socket = fsockopen($serverName, $port);
 if (!$socket) {
@@ -21,6 +22,7 @@ $baseURI = 'https://api.chucknorris.io/jokes';
 $name = 'Stephen';
 //$factGuzzler = new ChuckNorrisFactGuzzler($baseURI, $name);
 
+$parser = new Parser();
 $alreadyJoined = false;
 
 function sendData($cmd, $msg = null, $socket) {
@@ -38,43 +40,17 @@ while(1) {
             echo nl2br($data);
             flush();
 
-        echo $data;
-
+        $message = $parser->parse($data);
         if(!$alreadyJoined) {
             sendData("JOIN", $chan, $socket);
             $alreadyJoined = true;
-        }
-
-        $ex = explode(' ', $data);
-        var_dump($ex);
-        if($ex[0] == "PING"){
-            fputs($socket, "PONG ".$ex[1]."\n");
-        }
-
-        if (!isset($ex[3]) && $ex[2] !== "JOIN") {
-            var_dump('DIED HERE');
-            var_dump($ex);die;
-        }
-        $rawcmd = explode(':', $ex[3]);
-//        $oneword = explode('<br>', $rawcmd);
-        $channel = $ex[2];
-        $nicka = explode('@', $ex[0]);
-        $nickb = explode('!', $nicka[0]);
-        $nickc = explode(':', $nickb[0]);
-
-//        $host = $nicka[1];
-//        $nick = $nickc[1];
-
-        $args = NULL; for ($i = 4; $i < count($ex); $i++) { $args .= $ex[$i] . ' '; }
-
-            if ($rawcmd[1] == "!random") {
-                /** @var string $fact */
-//                $fact = $factGuzzler->getRandomFact();
-
-                fputs($socket, "PRIVMSG ".$channel." :".$fact." \n");
+        } else {
+            var_dump($message);
+            $ex = explode(' ', $data);
+            if($ex[0] == "PING"){
+                var_dump($ex[1]);
+                fputs($socket, "PONG ".$ex[1]."\n");
             }
-        elseif ($rawcmd[1] == "!md5") {
-            fputs($socket, "PRIVMSG ".$channel." :MD5 ".md5($args)."\n");
         }
     }
 }
