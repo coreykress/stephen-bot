@@ -37,7 +37,9 @@ function sendData($cmd, $msg = null, $socket) {
     }
 }
 
-//PRIVMSG #roomName :text
+function handleIncorrect ($socket, $nick) {
+     fputs($socket, $nick . ":random will send a fact");;
+}
 
 while(1) {
     while($data = fgets($socket)) {
@@ -46,7 +48,7 @@ while(1) {
 
         $message = $parser->parse($data);
         if(!$alreadyJoined) {
-            sendData("JOIN", $chan, $socket);
+            fputs($socket, $generator->ircJoin($chan));
             $alreadyJoined = true;
         } else {
             var_dump($message);
@@ -61,7 +63,11 @@ while(1) {
                         $fact = $factGuzzler->getRandomFact();
                         $message = $generator->ircPrivmsg($chan, $fact);
                         fputs($socket, $message);
+                    } else {
+                        handleIncorrect($socket, $nick);
                     }
+                } else if (preg_match('/'.$nick.'/', $text)) {
+                    handleIncorrect($socket, $nick);
                 }
             }
         }
