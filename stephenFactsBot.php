@@ -5,6 +5,7 @@ require __DIR__ . '/vendor/autoload.php';
 require_once 'config.php';
 
 use ApiPlugins\ChuckNorrisFactGuzzler;
+use Phergie\Irc\Generator;
 use Phergie\Irc\Parser;
 require 'src/plugins/chuckNorrisFactGuzzler.php';
 
@@ -22,17 +23,21 @@ $name = 'Stephen';
 $factGuzzler = new ChuckNorrisFactGuzzler($baseURI, $name);
 
 $parser = new Parser();
+$generator = new Generator();
 $alreadyJoined = false;
 
 function sendData($cmd, $msg = null, $socket) {
     if($msg == null) {
         fputs($socket, $cmd."\r\n");
-        echo "<strong>".$cmd."</strong><br />";
+        echo "<strong>" . $cmd . "</strong><br />";
     } else {
-        fputs($socket, $cmd." ".$msg."\r\n");
-        echo "<strong>".$cmd." ".$msg."</strong><br />";
+        #
+        fputs($socket, $cmd . " " . $msg . "\r\n");
+        echo "<strong>" . $cmd . " :" . $msg . "</strong><br />";
     }
 }
+
+//PRIVMSG #roomName :text
 
 while(1) {
     while($data = fgets($socket)) {
@@ -54,7 +59,8 @@ while(1) {
                     $action = $matches['action'];
                     if ($action == 'random') {
                         $fact = $factGuzzler->getRandomFact();
-                        sendData('PRIVMSG', $fact, $socket);
+                        $message = $generator->ircPrivmsg($chan, $fact);
+                        fputs($socket, $message);
                     }
                 }
             }

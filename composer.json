@@ -9,7 +9,8 @@
     ],
     "require": {
         "guzzlehttp/guzzle": "~6.0",
-        "phergie/phergie-irc-parser": "^2.3"
+        "phergie/phergie-irc-parser": "^2.3",
+        "phergie/phergie-irc-generator": "^1.7"
     },
     "autoload": {
         "psr-4": {
