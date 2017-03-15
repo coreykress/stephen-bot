@@ -2,18 +2,14 @@
 
 namespace ApiPlugins;
 
-use GuzzleHttp\Client;
-
-class ChuckNorrisFactGuzzler {
-
-    /** @var  Client */
-    protected $client;
-
-    /** @var  string */
-    protected $baseURL;
+class ChuckNorrisFactGuzzler extends \FactGuzzler {
 
     /** @var  string */
     protected $name;
+
+    private static $actions = [
+        'random',
+    ];
 
     /**
      * @return string
@@ -33,53 +29,19 @@ class ChuckNorrisFactGuzzler {
         return $this;
     }
 
-    /**
-     * @return Client
-     */
-    protected function getClient()
-    {
-        return $this->client;
-    }
-
-    /**
-     * @param Client $client
-     * @return ChuckNorrisFactGuzzler
-     */
-    protected function setClient($client)
-    {
-        $this->client = $client;
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    protected function getBaseURL()
-    {
-        return $this->baseURL;
-    }
-
-    /**
-     * @param string $baseURL
-     * @return ChuckNorrisFactGuzzler
-     */
-    protected function setBaseURL($baseURL)
-    {
-        $this->baseURL = $baseURL;
-        return $this;
-    }
-
     public function __construct($baseUrl, $name)
     {
-        $this->baseURL = $baseUrl;
-        $this->name = $name;
-        $this->client = new Client(['base_uri' => $baseUrl]);
+        parent::__construct($baseUrl);
+        $this->name;
     }
 
-    public function getRandomFact()
+    public function getFact($action)
     {
+        if (!in_array($action, self::$actions)) {
+            return null;
+        }
         $client = $this->client;
-        $response = $client->request('GET', 'random');
+        $response = $client->request('GET', $action);
 
         $responseBody = json_decode($response->getBody());
         if (!isset($responseBody->value)) {

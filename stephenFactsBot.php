@@ -43,8 +43,8 @@ function handleIncorrect ($socket, $nick) {
 
 while(1) {
     while($data = fgets($socket)) {
-            echo nl2br($data);
-            flush();
+        echo nl2br($data);
+        flush();
 
         $message = $parser->parse($data);
         if(!$alreadyJoined) {
@@ -60,7 +60,7 @@ while(1) {
                 if (preg_match('/'.$nick.'\:(?P<action>\w+)/', $text, $matches)) {
                     $action = $matches['action'];
                     if ($action == 'random') {
-                        $fact = $factGuzzler->getRandomFact();
+                        $fact = $factGuzzler->getFact($action);
                         $message = $generator->ircPrivmsg($chan, $fact);
                         fputs($socket, $message);
                     } else {
